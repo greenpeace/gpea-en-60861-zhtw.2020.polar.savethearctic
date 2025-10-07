@@ -45,7 +45,7 @@
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="救氣候，阻止北極破壞！">
 	<meta property="og:description" content="氣候變遷、鑽油開發、過度捕撈正威脅北極環境。有科學家預測，最快2040年北極夏季將因全球暖化而出現無海冰狀態，意味著北極熊在30年內，就會失去家園！維護脆弱北極生態，落實環境保護，懇請您一起連署守護北極，並線上捐款支持！">
-	<meta property="og:url" content="https://cloud.greentw.greenpeace.org/petition-arctic-savethearctic">
+	<meta property="og:url" content="http://www.greenpeace.org.tw/petition-arctic-savethearctic">
 	<meta property="og:image" content="%PUBLIC_URL%/img/og-petition.jpg?v=123">
 	
 	<link href='https://www.greenpeace.org/taiwan/wp-content/themes/planet4-master-theme/favicon.ico' rel='shortcut icon' type='image/png'>
@@ -656,12 +656,12 @@
 
     <input type="hidden" name="req" value="post_data">
     <input type="hidden" name="LeadSource" value="Petition - Plastics">
-    <input type="hidden" name="Petition_Interested_In_Arctic__c" value="false">
+    <input type="hidden" name="Petition_Interested_In_Arctic__c" value="true">
     <input type="hidden" name="Petition_Interested_In_Climate__c" value="false">
     <input type="hidden" name="Petition_Interested_In_Forest__c" value="false">
     <input type="hidden" name="Petition_Interested_In_Health__c" value="false">
     <input type="hidden" name="Petition_Interested_In_Oceans__c" value="false">
-    <input type="hidden" name="Petition_Interested_In_Plastics__c" value="true">
+    <input type="hidden" name="Petition_Interested_In_Plastics__c" value="false">
     <input type="hidden" name="CampaignId" value="7010k000000iJ7aAAE">
     <input type="hidden" name="UtmMedium" value="">
     <input type="hidden" name="UtmSource" value="">
@@ -709,10 +709,13 @@
 	</script>
 
 	<script type="text/javascript">
-		$(document).ready(function () {
+		window.initProgressBar = function ()	{
 
 			let barTarget = document.querySelector('input[name="barTarget"]') ? parseInt(document.querySelector('input[name="barTarget"]').value, 10) : 0;
 			let barNumber = document.querySelector('input[name="barNumber"]') ? parseInt(document.querySelector('input[name="barNumber"]').value, 10) : 0;
+
+			console.log('barTarget', barTarget);
+			console.log('barNumber', barNumber);
 
 			if (isNaN(barNumber) || barNumber < 8865199)
 				barNumber += 8865199;
@@ -762,7 +765,7 @@
 				number: value,
 				numberStep: comma_separator_number_step
 			}, 3000);
-		});
+		}
 	</script>
 
 

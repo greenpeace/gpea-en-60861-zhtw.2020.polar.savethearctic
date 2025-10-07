@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const packageJson = require('./package.json');
 //const FTPS = require('ftps');
 
 /**
@@ -32,13 +33,13 @@ const os = require('os');
 
 
 // definitions
-let buildFolder = path.join(__dirname, "build")
-	EndpointURL = "https://cloud.greentw.greenpeace.org/websign",
+let buildFolder = path.join(__dirname, "build"),
+	EndpointURL = "https://web-api.gpeastasia.org/api/tw/petition/websign-proxy",
 	CampaignId = "7012u000000OulhAAC",
 	DonationPageUrl = "https://www.greenpeace.org/eastasia/", // not used now
 	interests = ["Arctic"], // Arctic, Climate, Forest, Health, Oceans, Plastics
 	ftpConfigName = "ftp_tw", // refer to ~/.npm-en-uploader-secret
-	ftpRemoteDir = "/htdocs/2020/petition/zh-TW.2020.polar.savethearctic.mc"
+	ftpRemoteDir = "/htdocs/migrate/petition/zh-TW.2020.polar.savethearctic.mc"
 
 let indexHtmlFilePath = path.join(buildFolder, "index.html")
 let fbuf = fs.readFileSync(indexHtmlFilePath)
@@ -79,7 +80,7 @@ const upload_folder = function (settings, localDir) {
 
 // patch form contents
 let formTmpl =
-	`<form method="post" action="%%=v(@EndpointURL)=%%" class="" id="mc-form">
+	`<form method="post" action="${EndpointURL}" class="" id="mc-form">
 		<input placeholder="FirstName" name="FirstName" type="text" value="">
 		<input placeholder="LastName" name="LastName" type="text" value="">
 		<input placeholder="Email" name="Email" type="email" value="">
@@ -89,24 +90,24 @@ let formTmpl =
 		<input placeholder="OptIn" name="OptIn" type="checkbox" value="">
 
 		<input type="hidden" name="req" value="post_data">
-		<input type="hidden" name="LeadSource" value="%%=v(@LeadSource)=%%">
-		<input type="hidden" name="Petition_Interested_In_Arctic__c" value="%%=v(@Petition_Interested_In_Arctic__c)=%%">
-		<input type="hidden" name="Petition_Interested_In_Climate__c" value="%%=v(@Petition_Interested_In_Climate__c)=%%">
-		<input type="hidden" name="Petition_Interested_In_Forest__c" value="%%=v(@Petition_Interested_In_Forest__c)=%%">
-		<input type="hidden" name="Petition_Interested_In_Health__c" value="%%=v(@Petition_Interested_In_Health__c)=%%">
-		<input type="hidden" name="Petition_Interested_In_Oceans__c" value="%%=v(@Petition_Interested_In_Oceans__c)=%%">
-		<input type="hidden" name="Petition_Interested_In_Plastics__c" value="%%=v(@Petition_Interested_In_Plastics__c)=%%">
-		<input type="hidden" name="CampaignId" value="%%=v(@CampaignId)=%%">
-		<input type="hidden" name="UtmMedium" value="%%=v(@UtmMedium)=%%">
-		<input type="hidden" name="UtmSource" value="%%=v(@UtmSource)=%%">
-		<input type="hidden" name="UtmCampaign" value="%%=v(@UtmCampaign)=%%">
-		<input type="hidden" name="UtmContent" value="%%=v(@UtmContent)=%%">
-		<input type="hidden" name="UtmTerm" value="%%=v(@UtmTerm)=%%">
-		<input type="hidden" name="DonationPageUrl" value="%%=v(@DonationPageUrl)=%%">
+		<input type="hidden" name="LeadSource" value="">
+		<input type="hidden" name="Petition_Interested_In_Arctic__c" value="true">
+		<input type="hidden" name="Petition_Interested_In_Climate__c" value="false">
+		<input type="hidden" name="Petition_Interested_In_Forest__c" value="false">
+		<input type="hidden" name="Petition_Interested_In_Health__c" value="false">
+		<input type="hidden" name="Petition_Interested_In_Oceans__c" value="false">
+		<input type="hidden" name="Petition_Interested_In_Plastics__c" value="false">
+		<input type="hidden" name="CampaignId" value="${CampaignId}">
+		<input type="hidden" name="UtmMedium" value="">
+		<input type="hidden" name="UtmSource" value="">
+		<input type="hidden" name="UtmCampaign" value="">
+		<input type="hidden" name="UtmContent" value="">
+		<input type="hidden" name="UtmTerm" value="">
+		<input type="hidden" name="DonationPageUrl" value="">
 		<input name="req" type="hidden" value="post_data">
 
-		<input type="hidden" name="numSignupTarget" value="%%=v(@Petition_Signup_Target__c)=%%">
-		<input type="hidden" name="numResponses" value="%%=v(@NumberOfResponses)=%%">
+		<input type="hidden" name="numSignupTarget" value="">
+		<input type="hidden" name="numResponses" value="">
 	</form>
 `
 
@@ -130,41 +131,11 @@ if (matches) {
 }
 
 // append the headers
-let headersTmpl =
-`%%[
-	VAR @UtmMedium, @UtmSource, @UtmCampaign, @UtmContent, @UtmTerm, @LeadSource, @PetitionIssueType, @CampaignId, @DonationPageUrl
-
-	/*Set these params when creating a new petition page, for each core interest of the petition set the value to "true" to update the supporters CRM profile otherwise leave the value blank or with false value */
-
-	SET @EndpointURL = "${EndpointURL}"
-	SET @CampaignId = "${CampaignId}"
-	SET @LeadSource = "Petition - ${interests.join(",")}"
-	SET @Petition_Interested_In_Arctic__c       = "${interests.indexOf("Arctic")>=0 ? "true" : "false"}"
-	SET @Petition_Interested_In_Climate__c      = "${interests.indexOf("Climate")>=0 ? "true" : "false"}"
-	SET @Petition_Interested_In_Forest__c       = "${interests.indexOf("Forest")>=0 ? "true" : "false"}"
-	SET @Petition_Interested_In_Health__c       = "${interests.indexOf("Health")>=0 ? "true" : "false"}"
-	SET @Petition_Interested_In_Oceans__c       = "${interests.indexOf("Oceans")>=0 ? "true" : "false"}"
-	SET @Petition_Interested_In_Plastics__c     = "${interests.indexOf("Plastics")>=0 ? "true" : "false"}"
-	SET @DonationPageUrl = "${DonationPageUrl}"
-
-	/**** Retreive number of responses in campaign used for any petition where petition sign up progress bar is needed to display signups compared to targeted number of signups ****/    
-    SET @Rows = LookupRows("ENT.Campaign_Salesforce","Id", @CampaignId)
-    IF RowCount(@Rows) > 0 THEN
-      SET @CampaignRow = Row(@Rows, 1)
-      SET @NumberOfResponses = Field(@CampaignRow, "NumberOfResponses")
-      SET @Petition_Signup_Target__c = Field(@CampaignRow, "Petition_Signup_Target__c")
-    ENDIF
-
-	/*UTM Tracking Params*/
-	SET @UtmMedium          = RequestParameter("utm_medium")
-	SET @UtmSource          = RequestParameter("utm_source")
-	SET @UtmCampaign        = RequestParameter("utm_campaign")
-	SET @UtmContent         = RequestParameter("utm_content")
-	SET @UtmTerm            = RequestParameter("utm_term")
-]%%
-`
+let headersTmpl =``
 
 content = headersTmpl + "\n" + content
+content = content.replace(/%PUBLIC_URL%/g, packageJson.homepage);
+console.log('PUBLIC_URL patched');
 console.log('MC header patched')
 
 // patch version numbers

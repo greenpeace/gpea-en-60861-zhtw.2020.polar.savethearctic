@@ -1,6 +1,6 @@
 {
   "name": "zh-TW.2020.polar.savethearctic.signup.mc",
-  "homepage": "https://change.greenpeace.org.tw/2020/petition/zh-TW.2020.polar.savethearctic.mc/",
+  "homepage": "https://change.greenpeace.org.tw/migrate/petition/zh-TW.2020.polar.savethearctic.mc/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -17,10 +17,10 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "build:en": "PUBLIC_URL=https://change.greenpeace.org.tw/2020/petition/zh-TW.2020.polar.savethearctic.mc npm run build",
+    "build:en": "PUBLIC_URL=https://change.greenpeace.org.tw/migrate/petition/zh-TW.2020.polar.savethearctic.mc npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "yarn run build:en && node mc-deploy.js"
+    "deploy": "npm run build:en && node mc-deploy.js"
   },
   "eslintConfig": {
     "extends": "react-app"

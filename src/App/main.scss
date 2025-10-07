@@ -1,6 +1,10 @@
 $color-primary: #0f3e7f;
 $color-secondary: rgba(54,119,212, 0.9);
 
+html {
+  height: 100%;
+}
+
 .root-container {
   overflow: hidden;
   width: 100%;

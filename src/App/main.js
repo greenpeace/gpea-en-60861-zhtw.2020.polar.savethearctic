@@ -3,9 +3,9 @@ import { phone_required, line_QR_code } from './utm_source_dd.js';
 const {$, anime, autosize, Cookies, Highcharts, dataLayer} = window
 
 const donateUrl = "https://supporter.ea.greenpeace.org/tw/s/donate?campaign=polar&ref=savethearctic_thankyou_page";
-const shareUrl = "https://cloud.greentw.greenpeace.org/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
-const shareFBUrl = "https://cloud.greentw.greenpeace.org/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
-const shareLineUrl = "https://cloud.greentw.greenpeace.org/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
+const shareUrl = "http://www.greenpeace.org.tw/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
+const shareFBUrl = "http://www.greenpeace.org.tw/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
+const shareLineUrl = "http://www.greenpeace.org.tw/petition-arctic-savethearctic?utm_campaign=2020-arctic&utm_source=facebook&utm_medium=socialorganic&utm_content=2020-arctic_petition_tkpage";
 const redirectDonateLink = "https://supporter.ea.greenpeace.org/tw/s/donate?campaign=polar&ref=savethearctic_thankyou_page"
 
 window.donate = () => {
@@ -63,9 +63,56 @@ function sendPetitionTracking(eventLabel, eventValue) {
 	window.uetq.push ('event', 'signup', {'event_category': 'petitions', 'event_label': eventLabel, 'event_value': 0});
 }
 
+function getHubSpotUtk(){
+	// Look for HubSpot UTK cookie
+	const cookies = document.cookie.split(';');
+	for (let cookie of cookies) {
+			const [name, value] = cookie.trim().split('=');
+			if (name === 'hubspotutk' || name === '__hsutk') {
+					console.log('HubSpot UTK found:', decodeURIComponent(value));
+					return decodeURIComponent(value);
+			}
+	}
+	return null;
+}
+
+function fetchSignedData() {
+	const fetchURL = 'https://web-api.gpeastasia.org/api/petition/progress';
+	const campaignId = $('#mc-form [name="CampaignId"]').val() || '7012u000000OulhAAC';
+	let signedData;
+	fetch(fetchURL+ '?campaignIds=' + campaignId).then(function(response){
+		return response.json();
+	}).then(function(data){
+		signedData = {
+			NumberOfResponses: data.data.campaignCounts[campaignId] || 0,
+			NumberOfLeads: 0,
+			NumberOfContacts: 0,
+			Petition_Signup_Target__c: data.data.campaignTargets[campaignId] || 0,
+		};
+		console.log('signedData:', signedData);
+		$('#mc-form [name="numResponses"]').val(signedData.NumberOfResponses || '');
+		$('#mc-form [name="numSignupTarget"]').val(signedData.Petition_Signup_Target__c || '');
+		window.initProgressBar();
+	}).catch(function(err) {
+		window.initProgressBar();
+    console.log(err);
+  })
+}
+
 var pageInit = function(){
 	var _ = this;
 	var $container = $('#form');
+
+	const urlParams = new URLSearchParams(window.location.search);
+	for (const [key, value] of urlParams) {
+		const fieldName = key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+		const field = $(`#mc-form [name="${fieldName}"]`);
+		if (field.length > 0) {
+			field.val(value);
+		}
+	}
+	fetchSignedData()
+	
 
 	$container.find('input, select').bind('change blur', function(){
 		if($(this).val() !== ''){
@@ -129,6 +176,8 @@ var pageInit = function(){
 			showFullPageLoading()
 					
 			// mc forms
+			
+			// $('#mc-form [name="UtmMedium"]').val('socialorganic');
 			$('#mc-form [name="FirstName"]').val($('#center_name').val());
 			$('#mc-form [name="LastName"]').val($('#center_lastname').val());
 			$('#mc-form [name="Email"]').val($('#center_email').val());
@@ -150,6 +199,9 @@ var pageInit = function(){
 				//console.log("Use", el.name, v)
 			})
 
+			// add fields for websign proxy
+			formData.append('hubspotUtk', getHubSpotUtk());
+			formData.append('pageTitle', document.title);
 			// send the request
 			let postUrl = $("#mc-form").prop("action")
 			fetch(postUrl, {
